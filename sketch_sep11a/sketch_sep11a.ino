@@ -29,14 +29,6 @@ pinMode (13, OUTPUT);
 pinMode (12, OUTPUT); 
 pinMode (11, OUTPUT); 
 
-/*
- * pinMode (5, OUTPUT);
-pinMode (6, OUTPUT);
-pinMode (7, OUTPUT);
-pinMode (8, INPUT_PULLUP);
-pinMode (9, INPUT_PULLUP);
-pinMode (10, INPUT_PULLUP);
- */
 //
 analogWrite(A4,0);
 //
@@ -120,12 +112,12 @@ void keypadEvent(KeypadEvent key)
 if ((key == MasterPassword[CodeStep])&&(CheckLock != 1))
 {
   Serial.print("Master password step: ");
-  Serial.println(CodeStep);  
+  Serial.println(1+CodeStep);  
   if (CodeStep == 0)
     {
       CheckLock = 2;
     }
-  CodeEnterSignal();
+
   CodeStep++;
     if (CodeStep == 4)
     {
@@ -136,12 +128,12 @@ if ((key == MasterPassword[CodeStep])&&(CheckLock != 1))
 if ((key == GuestPassword[CodeStep])&&(CheckLock != 2))
 {
   Serial.print("Guest password step: ");
-  Serial.println(CodeStep);
+  Serial.println(1+CodeStep);
     if (CodeStep == 0)
     {
       CheckLock = 1;
     }
-  CodeEnterSignal();
+
   CodeStep++;
     if (CodeStep == 4)
     {
@@ -158,17 +150,4 @@ if ((key == GuestPassword[CodeStep])&&(CheckLock != 2))
       CodeStep = 0; 
     }
   } 
-}
-
-
-void CodeEnterSignal(void)
-{
-  if (CodeStep != 0) {
-  for(int i; i<=CodeStep ; i++ )
-  {
-    analogWrite(A4,255);
-    delay(400);
-    analogWrite(A4,0);
-  }
-}
 }
