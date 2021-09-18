@@ -6,7 +6,7 @@ char GuestPassword[4] = {'2','3','5','7'};
 
 const byte ROWS = 3; 
 const byte COLS = 3;
-char hexaKeys[ROWS][COLS] = {
+char Keys[ROWS][COLS] = {
 {'1','2','3'}, 
 {'4','5','6'},
 {'7','8','9'}
@@ -14,7 +14,7 @@ char hexaKeys[ROWS][COLS] = {
 byte rowPins[ROWS] = {8, 9, 10};
 byte colPins[COLS] = {5, 6, 7};
 
-Keypad Keys = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
+Keypad KeyMap = Keypad( makeKeymap(Keys), rowPins, colPins, ROWS, COLS);
 
 TimerMs tmr(1000,1,0);
 int AccessLevel = 0; // 0-No 1-Guest 2-Master
@@ -22,7 +22,7 @@ int HornPin = 12;
 int LockPin = 11;
 int CodeStep = 0;
 int CheckLock = 0;
-long codeResetCountdown = 1000000;
+long codeResetCountdown = 6000000;
 
 void setup() {
 pinMode (13, OUTPUT); 
@@ -40,19 +40,27 @@ pinMode (10, INPUT_PULLUP);
 //
 analogWrite(A4,0);
 //
-Keys.addEventListener(keypadEvent);
+KeyMap.addEventListener(keypadEvent);
+KeyMap.setDebounceTime(20);
+//
+Serial.begin(9600);
+while (!Serial)
+{
+  
+}
 }
 
 void loop() {
 status_blink();
-char key = Keys.getKey();
 if (AccessLevel == 1) 
   {
+    Serial.print("GuestAccessConfirmed");
     lock_5sec_guest();
     AccessLevel = 0;
   } 
 if (AccessLevel == 2) 
   {
+    Serial.print("MasterAccessConfirmed");
     lock_5sec_master();
     AccessLevel = 0;
   }
@@ -63,8 +71,10 @@ if (CodeStep > 0)
 if ((codeResetCountdown <= 0)) 
   {
     CodeStep = 0;
-    codeResetCountdown = 1000000;
-  } 
+    codeResetCountdown = 6000000;
+    Serial.print(" Reset ");
+  }
+char key = KeyMap.getKey(); 
 }
 
 void status_blink(void) {
@@ -105,39 +115,49 @@ void lock_5sec_guest(void) {
 
 void keypadEvent(KeypadEvent key)
 {
+  Serial.print("Key scanned: ");
+  Serial.println(key);
 if ((key == MasterPassword[CodeStep])&&(CheckLock != 1))
 {
+  Serial.print("Master password step: ");
+  Serial.println(CodeStep);  
   if (CodeStep == 0)
-  {
-    CheckLock = 2;
-  }
+    {
+      CheckLock = 2;
+    }
   CodeEnterSignal();
   CodeStep++;
-  if (CodeStep == 4)
-  {
-    AccessLevel = 2;
-    CodeStep = 0;
-  }
+    if (CodeStep == 4)
+    {
+      AccessLevel = 2;
+      CodeStep = 0;
+    }
 } else
 if ((key == GuestPassword[CodeStep])&&(CheckLock != 2))
 {
-  if (CodeStep == 0)
-  {
-    CheckLock = 1;
-  }
+  Serial.print("Guest password step: ");
+  Serial.println(CodeStep);
+    if (CodeStep == 0)
+    {
+      CheckLock = 1;
+    }
   CodeEnterSignal();
   CodeStep++;
-  if (CodeStep == 4)
-  {
-    AccessLevel = 1;
-    CodeStep = 0;
-  }
+    if (CodeStep == 4)
+    {
+      AccessLevel = 1;
+      CodeStep = 0;
+    }
 } else
-{ 
-  CheckLock = 0;
-  CodeStep = 0; 
-}
-  
+  { 
+     if (((CheckLock == 1)&&(key != GuestPassword[CodeStep-1]))||((CheckLock == 2)&&(key != MasterPassword[CodeStep-1]))||(CheckLock == 0))
+    {
+      Serial.print("Wrong password char: ");
+      Serial.println(key);
+      CheckLock = 0;
+      CodeStep = 0; 
+    }
+  } 
 }
 
 
