@@ -22,13 +22,21 @@ int HornPin = 12;
 int LockPin = 11;
 int CodeStep = 0;
 int CheckLock = 0;
-long codeResetCountdown = 6000000;
+long CodeResetCountdown = 6000000;
 
 void setup() {
 pinMode (13, OUTPUT); 
 pinMode (12, OUTPUT); 
 pinMode (11, OUTPUT); 
 
+/*
+ * pinMode (5, OUTPUT);
+pinMode (6, OUTPUT);
+pinMode (7, OUTPUT);
+pinMode (8, INPUT_PULLUP);
+pinMode (9, INPUT_PULLUP);
+pinMode (10, INPUT_PULLUP);
+ */
 //
 analogWrite(A4,0);
 //
@@ -58,12 +66,12 @@ if (AccessLevel == 2)
   }
 if (CodeStep > 0) 
   {
-    codeResetCountdown--;
+    CodeResetCountdown--;
   }  
-if ((codeResetCountdown <= 0)) 
+if ((CodeResetCountdown <= 0)) 
   {
     CodeStep = 0;
-    codeResetCountdown = 6000000;
+    CodeResetCountdown = 6000000;
     Serial.print(" Reset ");
   }
 char key = KeyMap.getKey(); 
@@ -112,12 +120,11 @@ void keypadEvent(KeypadEvent key)
 if ((key == MasterPassword[CodeStep])&&(CheckLock != 1))
 {
   Serial.print("Master password step: ");
-  Serial.println(1+CodeStep);  
+  Serial.println(CodeStep);  
   if (CodeStep == 0)
     {
       CheckLock = 2;
     }
-
   CodeStep++;
     if (CodeStep == 4)
     {
@@ -128,12 +135,11 @@ if ((key == MasterPassword[CodeStep])&&(CheckLock != 1))
 if ((key == GuestPassword[CodeStep])&&(CheckLock != 2))
 {
   Serial.print("Guest password step: ");
-  Serial.println(1+CodeStep);
+  Serial.println(CodeStep);
     if (CodeStep == 0)
     {
       CheckLock = 1;
     }
-
   CodeStep++;
     if (CodeStep == 4)
     {
