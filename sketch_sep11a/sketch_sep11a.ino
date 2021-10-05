@@ -2,17 +2,17 @@
 #include <TimerMs.h>
 
 char MasterPassword[4] = {'9','6','8','7'};
-char GuestPassword[4] = {'2','3','5','7'};
+char GuestPassword[4] = {'8','9','5','1'};
 
 const byte ROWS = 3; 
 const byte COLS = 3;
 char Keys[ROWS][COLS] = {
-{'1','2','3'}, 
+{'7','8','9'}, 
 {'4','5','6'},
-{'7','8','9'}
+{'1','2','3'}
 };
-byte rowPins[ROWS] = {8, 9, 10};
-byte colPins[COLS] = {5, 6, 7};
+byte rowPins[ROWS] = {5, 6, 7};
+byte colPins[COLS] = {8, 9, 10};
 
 Keypad KeyMap = Keypad( makeKeymap(Keys), rowPins, colPins, ROWS, COLS);
 
@@ -81,7 +81,7 @@ void lock_5sec_master(void)
 {
   digitalWrite(13,HIGH);
   digitalWrite(LockPin,HIGH);
-  delay(5000);
+  delay(2000);
   digitalWrite(LockPin,LOW);
   digitalWrite(13,LOW);
 }
@@ -93,7 +93,7 @@ void lock_5sec_guest(void)
   digitalWrite(HornPin,HIGH);
   delay(1000);
   digitalWrite(HornPin,LOW);
-  delay(4000);
+  delay(1000);
   digitalWrite(LockPin,LOW);
   digitalWrite(13,LOW);
 }
